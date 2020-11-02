@@ -95,8 +95,11 @@ public class ReusableOperationsService {
 
     public LinkedList<LinkedList<String>> getPercentageOfValue(LinkedList<LinkedList<String>> linkedLists, String minOrMax, Integer numberOfObservation){
         LinkedList<LinkedList<String>> linkedListsOfPercentageOfValue = new LinkedList<>();
+        Integer first =0;
+        LinkedList<String> header = linkedLists.get(linkedLists.size()-1);
+        linkedLists.removeLast();
         if(minOrMax.equals("min")){
-            for(int i=1; i<=numberOfObservation; i++){
+            for(int i=1; i<numberOfObservation; i++){
                 linkedListsOfPercentageOfValue.add(linkedLists.get(i));
             }
         }
@@ -108,10 +111,7 @@ public class ReusableOperationsService {
                 }
             }
         }
+        linkedListsOfPercentageOfValue.set(first, header);
         return linkedListsOfPercentageOfValue;
     }
-
-
-
-
 }
