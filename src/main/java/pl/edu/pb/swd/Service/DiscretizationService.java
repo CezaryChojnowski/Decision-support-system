@@ -57,18 +57,25 @@ public class DiscretizationService {
         Double subtractionMaxMin = max-min;
         Double rangeValue = subtractionMaxMin/numberOfRanges, tempRangeValue = min+rangeValue;
         LinkedList<Range> rangeLinkedList = new LinkedList<>();
+        int customNumberOfRangesException = 2;
         Integer value;
         for(int i=0; i<numberOfRanges; i++){
             value = i + 1;
-            if(i==0){
-                rangeLinkedList.add(new Range(min, min+rangeValue, value.toString()));
-            }
-            else if(i==numberOfRanges-1){
-                rangeLinkedList.add(new Range(max-rangeValue, max, value.toString()));
+            if(numberOfRanges!=customNumberOfRangesException) {
+                if (i == 0) {
+                    rangeLinkedList.add(new Range(min, min + rangeValue, value.toString()));
+                } else if (i == numberOfRanges - 1) {
+                    rangeLinkedList.add(new Range(max - rangeValue, max, value.toString()));
+                } else {
+                    rangeLinkedList.add(new Range(tempRangeValue, tempRangeValue + rangeValue, value.toString()));
+                    tempRangeValue += rangeValue;
+                }
             }
             else{
-                rangeLinkedList.add(new Range(tempRangeValue, tempRangeValue+rangeValue, value.toString()));
-                tempRangeValue += rangeValue;
+                rangeLinkedList.add(new Range(min, min+rangeValue, value.toString()));
+                value++;
+                rangeLinkedList.add(new Range(min+rangeValue, max, value.toString()));
+                break;
             }
         }
         return rangeLinkedList;
