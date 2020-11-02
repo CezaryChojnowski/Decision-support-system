@@ -26,13 +26,16 @@ public class MainController {
 
     final DiscretizationService discretizationService;
 
-    public MainController(ReadWriteService readWriteService, TextToNumericService textToNumericService, RangeService rangeService, ReusableOperationsService reusableOperationsService, NormalizationService normalizationService, DiscretizationService discretizationService) {
+    final DataForChartsService dataForChartsService;
+
+    public MainController(ReadWriteService readWriteService, TextToNumericService textToNumericService, RangeService rangeService, ReusableOperationsService reusableOperationsService, NormalizationService normalizationService, DiscretizationService discretizationService, DataForChartsService dataForChartsService) {
         this.readWriteService = readWriteService;
         this.textToNumericService = textToNumericService;
         this.rangeService = rangeService;
         this.reusableOperationsService = reusableOperationsService;
         this.normalizationService = normalizationService;
         this.discretizationService = discretizationService;
+        this.dataForChartsService = dataForChartsService;
     }
 
     @RequestMapping(value = "/originalFile",method = RequestMethod.GET)
@@ -120,13 +123,7 @@ public class MainController {
     public LinkedList<LinkedList<String>> getDataTo2dChart(@RequestParam String firstColumnName,
                                                            @RequestParam String secondColumnName,
                                                            @RequestParam(required = false) String thirdColumnName){
-        LinkedList<String> firstColumn = reusableOperationsService.getWholeColumnByIndex(firstColumnName);
-        LinkedList<String> secondColumn = reusableOperationsService.getWholeColumnByIndex(secondColumnName);
-        if(!thirdColumnName.equals("")){
-            LinkedList<String> thirdColumn = reusableOperationsService.getWholeColumnByIndex(thirdColumnName);
-
-        }
-        return null;
+        return dataForChartsService.getDataTo2dChart(firstColumnName, secondColumnName, thirdColumnName);
     }
 }
 
