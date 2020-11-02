@@ -115,5 +115,18 @@ public class MainController {
         LinkedList<String> newColumn = discretizationService.discretizationRow(columnDouble, rangeLinkedList);
         return reusableOperationsService.mergingExistingColumnsWithNewColumn(newColumnName, newColumn);
     }
+
+    @RequestMapping(value = "/2dChart", method=RequestMethod.GET)
+    public LinkedList<LinkedList<String>> getDataTo2dChart(@RequestParam String firstColumnName,
+                                                           @RequestParam String secondColumnName,
+                                                           @RequestParam(required = false) String thirdColumnName){
+        LinkedList<String> firstColumn = reusableOperationsService.getWholeColumnByIndex(firstColumnName);
+        LinkedList<String> secondColumn = reusableOperationsService.getWholeColumnByIndex(secondColumnName);
+        if(!thirdColumnName.equals("")){
+            LinkedList<String> thirdColumn = reusableOperationsService.getWholeColumnByIndex(thirdColumnName);
+
+        }
+        return null;
+    }
 }
 
