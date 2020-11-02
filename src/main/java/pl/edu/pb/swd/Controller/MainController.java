@@ -89,6 +89,22 @@ public class MainController {
         return reusableOperationsService.mergingExistingColumnsWithNewColumn(newColumnName, newColumn);
     }
 
+    @RequestMapping(value = "/percentageHighestOrSmallestValues", method = RequestMethod.GET)
+    public LinkedList<LinkedList<String>> getPercentageHighestOrSmallestValues(
+            @RequestParam String minOrMax,
+            @RequestParam String sortBy,
+            @RequestParam Integer percentageValues
+    ){
+        LinkedList<LinkedList<String>> linkedLists = readWriteService.readDataFromWorkingFile();
+        int first = 0,
+                indexColumn = findColumnIndex(
+                        linkedLists.get(first),
+                        sortBy),
+                numberOfObservation = (linkedLists.size()-1) * percentageValues/100;
+        linkedLists = reusableOperationsService.sortLinkedListOfLinkedListByIndex(linkedLists, indexColumn);
+        return reusableOperationsService.getPercentageOfValue(linkedLists, minOrMax, numberOfObservation);
+    }
+
     @RequestMapping(value = "/discretization", method=RequestMethod.POST)
     public LinkedList<LinkedList<String>> discretization(@RequestParam String columnName,
                                                          @RequestParam Integer numberOfRanges,

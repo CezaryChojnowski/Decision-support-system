@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -80,4 +81,37 @@ public class ReusableOperationsService {
         readWriteService.saveToWorkingFile(listLinkedList);
         return listLinkedList;
     }
+
+    public LinkedList<LinkedList<String>> sortLinkedListOfLinkedListByIndex(LinkedList<LinkedList<String>> linkedLists, Integer sortBy) {
+        Comparator<LinkedList<String>> compareBy = new Comparator<LinkedList<String>>() {
+            @Override
+            public int compare(LinkedList<String> o1, LinkedList<String> o2) {
+                return o1.get(sortBy).compareTo(o2.get(sortBy));
+            }
+        };
+        Collections.sort(linkedLists, compareBy);
+        return linkedLists;
+    }
+
+    public LinkedList<LinkedList<String>> getPercentageOfValue(LinkedList<LinkedList<String>> linkedLists, String minOrMax, Integer numberOfObservation){
+        LinkedList<LinkedList<String>> linkedListsOfPercentageOfValue = new LinkedList<>();
+        if(minOrMax.equals("min")){
+            for(int i=1; i<=numberOfObservation; i++){
+                linkedListsOfPercentageOfValue.add(linkedLists.get(i));
+            }
+        }
+        else if(minOrMax.equals("max")){
+            for(int i=linkedLists.size()-1; i>0; i--){
+                linkedListsOfPercentageOfValue.add(linkedLists.get(i-1));
+                if(linkedListsOfPercentageOfValue.size()==numberOfObservation){
+                    break;
+                }
+            }
+        }
+        return linkedListsOfPercentageOfValue;
+    }
+
+
+
+
 }
