@@ -125,5 +125,13 @@ public class MainController {
                                                            @RequestParam(required = false) String thirdColumnName){
         return dataForChartsService.getDataTo2dChart(firstColumnName, secondColumnName, thirdColumnName);
     }
+
+    @RequestMapping(value = "/histogram", method = RequestMethod.GET)
+    public LinkedList<LinkedList<String>> getDataForHistogram(@RequestParam String columnName,
+                                                              @RequestParam boolean discreteVariable,
+                                                              @RequestParam(required = false)
+                                                                          Integer numberOfRanges){
+        return dataForChartsService.getDataToHistogram(columnName, discreteVariable, numberOfRanges);
+    }
 }
 
