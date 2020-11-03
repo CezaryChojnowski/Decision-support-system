@@ -17,14 +17,6 @@ public class DiscretizationService {
         this.reusableOperationsService = reusableOperationsService;
     }
 
-    public LinkedList<String> teteetet(String columnName, Integer numberOfRanges){
-        LinkedList<Range> rangeLinkedList = createListRange(columnName, numberOfRanges);
-        LinkedList<String> column = reusableOperationsService.getWholeColumnByIndex(columnName);
-        LinkedList<Double> columnDouble = convertStringValueToDouble(column);
-        LinkedList<String> strings = discretizationRow(columnDouble, rangeLinkedList);
-        return strings;
-    }
-
     public LinkedList<String> discretizationRow(LinkedList<Double> column, LinkedList<Range> rangeLinkedList){
         LinkedList<String> newColumn = new LinkedList<>();
         String newValue;
