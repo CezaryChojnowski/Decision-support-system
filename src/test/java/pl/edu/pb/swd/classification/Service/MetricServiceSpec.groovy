@@ -15,38 +15,76 @@ class MetricServiceSpec extends Specification {
 
     def "Should return list with names of only numeric column"() {
         given: "Defined data to call method"
-        LinkedList<LinkedList<String>> listOfLists = asList(
-                asList("LISDLG", "LISSZE", "PLADLG", "PLASZE", "ODMIRYS") as LinkedList<String>,
-                asList("5.0", "3.3", "1.4", "0.2", "SETOSA") as LinkedList<String>,
-                asList("6.4", "2.8", "5.6", "2.2", "VIRGINIC") as LinkedList<String>);
+        def testData = getTestData()
         and: "Method readDataFromWorkingFile always return this list of lists with data"
-        readWriteService.readDataFromWorkingFile() >> listOfLists
+        readWriteService.readDataFromWorkingFile() >> testData
         when: "Try get list with names of only numeric column"
-        LinkedList<String> result = metricService.getNumericHeaders();
+        LinkedList<String> result = metricService.getNumericHeaders()
         then: "Result should be list with names of only numeric column"
-        result == asList("LISDLG", "LISSZE", "PLADLG", "PLASZE")
+        result.equals(asList("LISDLG", "LISSZE", "PLADLG", "PLASZE"))
     }
 
     def "Should return list with index of only numeric column"() {
         given: "Defined data to call method"
-        LinkedList<LinkedList<String>> listOfLists = asList(
-                asList("LISDLG", "LISSZE", "PLADLG", "PLASZE", "ODMIRYS") as LinkedList<String>,
-                asList("5.0", "3.3", "1.4", "0.2", "SETOSA") as LinkedList<String>,
-                asList("6.4", "2.8", "5.6", "2.2", "VIRGINIC") as LinkedList<String>);
+        def testData = getTestData();
         LinkedList<String> temp5 = asList("LISDLG", "LISSZE", "PLADLG", "PLASZE");
         and: "Method readDataFromWorkingFile always return this list of lists with data"
-        readWriteService.readDataFromWorkingFile() >> listOfLists
+        readWriteService.readDataFromWorkingFile() >> testData
         when: "Try get list with index of only numeric column"
         LinkedList<Integer> result = metricService.getIndexesNumericColumn(temp5)
         then: "Result should be list with index of only numeric column"
-        result == asList(0, 1, 2, 3)
+        result.equals(asList(0, 1, 2, 3))
     }
 
     def "Should return map with index and name of only numeric column"() {
         given: "Defined data to call method"
         LinkedList<Integer> indexes = asList(0, 1, 2, 3);
-        LinkedList<String> values = asList("1.5", "2.5", "3.5", "4.5");
-        Map<Integer, Double> integerDoubleMap = new HashMap<Integer, Double>() {
+        LinkedList<String> values = asList("1.5", "2.5", "3.5", "4.5")
+        def newObject = getMapWithNewObject()
+        when: "Try get map with index and names of only numeric column"
+        Map<Integer, Double> result = metricService.createMapWithIndexAndValueNewObject(indexes, values)
+        then: "Result should be map with index and name of only numeric column"
+        result.equals(newObject)
+    }
+
+    def "Should return vector of distance by euclidean metric"() {
+        given: "Defined data to call method"
+        def testData = getTestData()
+        def newObject = getMapWithNewObject()
+        and: "Method readDataFromWorkingFile always return this list of lists with data"
+        readWriteService.readDataFromWorkingFile() >> testData
+        when:
+        LinkedList<Double> result = metricService.getVectorOfDistance(newObject, 1)
+        then:
+        result.equals(asList(35.79, 33.8, 35.3, 36.22, 34.69))
+    }
+
+    def "Should return vector of distance by manhattan metric"() {
+        given: "Defined data to call method"
+        def testData = getTestData();
+        def newObject = getMapWithNewObject()
+        and: "Method readDataFromWorkingFile always return this list of lists with data"
+        readWriteService.readDataFromWorkingFile() >> testData
+        when:
+        LinkedList<Double> result = metricService.getVectorOfDistance(newObject, 2)
+        then:
+        result.equals(asList(10.7,9.6,9.4,10.0,9.7))
+    }
+
+    def "Should return vector of distance by chebyshev metric"() {
+        given: "Defined data to call method"
+        def testData = getTestData();
+        def newObject = getMapWithNewObject()
+        and: "Method readDataFromWorkingFile always return this list of lists with data"
+        readWriteService.readDataFromWorkingFile() >> testData
+        when:
+        LinkedList<Double> result = metricService.getVectorOfDistance(newObject, 3)
+        then:
+        result.equals(asList(4.3,4.9,5.0,5.2,4.8))
+    }
+
+    Map<Integer, Double> getMapWithNewObject(){
+        return  new HashMap<Integer, Double>() {
             {
                 put(0, 1.5);
                 put(1, 2.5);
@@ -54,9 +92,15 @@ class MetricServiceSpec extends Specification {
                 put(3, 4.5);
             }
         }
-        when: "Try get map with index and names of only numeric column"
-        Map<Integer, Double> result = metricService.createMapWithIndexAndValueNewObject(indexes, values);
-        then: "Result should be map with index and name of only numeric column"
-        result == integerDoubleMap;
+    }
+
+    LinkedList<LinkedList<String>> getTestData(){
+        return asList(
+                asList("LISDLG", "LISSZE", "PLADLG", "PLASZE", "ODMIRYS") as LinkedList<String>,
+                asList("5.0", "3.3", "1.4", "0.2", "SETOSA") as LinkedList<String>,
+                asList("6.4", "2.8", "5.6", "2.2", "VIRGINIC") as LinkedList<String>,
+                asList("6.5", "2.8", "4.6", "1.5", "VERSICOL") as LinkedList<String>,
+                asList("6.7", "3.1", "5.6", "2.4", "VIRGINIC") as LinkedList<String>,
+                asList("6.3", "2.8", "5.1", "1.5", "VIRGINIC") as LinkedList<String>)
     }
 }
