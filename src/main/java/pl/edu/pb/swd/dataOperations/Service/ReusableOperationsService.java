@@ -1,4 +1,4 @@
-package pl.edu.pb.swd.Service;
+package pl.edu.pb.swd.dataOperations.Service;
 
 import org.springframework.stereotype.Service;
 

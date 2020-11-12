@@ -1,4 +1,4 @@
-package pl.edu.pb.swd.Service;
+package pl.edu.pb.swd.dataOperations.Service;
 
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;

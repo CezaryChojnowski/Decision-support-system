@@ -1,11 +1,11 @@
-package pl.edu.pb.swd.Service;
+package pl.edu.pb.swd.dataOperations.Service;
 
 import org.springframework.stereotype.Service;
 
 import java.util.LinkedList;
 
-import static pl.edu.pb.swd.Service.ReusableOperationsService.calculateAverageColumnValue;
-import static pl.edu.pb.swd.Service.ReusableOperationsService.calculateStdColumnValue;
+import static pl.edu.pb.swd.dataOperations.Service.ReusableOperationsService.calculateAverageColumnValue;
+import static pl.edu.pb.swd.dataOperations.Service.ReusableOperationsService.calculateStdColumnValue;
 
 @Service
 public class NormalizationService {

@@ -1,11 +1,11 @@
-package pl.edu.pb.swd.Service;
+package pl.edu.pb.swd.dataOperations.Service;
 
 import org.springframework.stereotype.Service;
-import pl.edu.pb.swd.Model.Range;
+import pl.edu.pb.swd.dataOperations.Model.Range;
 
 import java.util.LinkedList;
 
-import static pl.edu.pb.swd.Service.ReusableOperationsService.*;
+import static pl.edu.pb.swd.dataOperations.Service.ReusableOperationsService.*;
 
 @Service
 public class DiscretizationService {

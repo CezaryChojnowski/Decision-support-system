@@ -1,6 +1,4 @@
-package pl.edu.pb.swd.Model;
-
-import java.util.LinkedList;
+package pl.edu.pb.swd.dataOperations.Model;
 
 public class Range {
 

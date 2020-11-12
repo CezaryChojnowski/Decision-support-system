@@ -1,11 +1,11 @@
-package pl.edu.pb.swd.Service;
+package pl.edu.pb.swd.dataOperations.Service;
 
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.*;
 
-import static pl.edu.pb.swd.Service.ReusableOperationsService.findColumnIndex;
+import static pl.edu.pb.swd.dataOperations.Service.ReusableOperationsService.findColumnIndex;
 
 @Service
 public class TextToNumericService {

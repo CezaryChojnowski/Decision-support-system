@@ -1,13 +1,13 @@
-package pl.edu.pb.swd.Service;
+package pl.edu.pb.swd.dataOperations.Service;
 
 import org.springframework.stereotype.Service;
-import pl.edu.pb.swd.Model.Range;
+import pl.edu.pb.swd.dataOperations.Model.Range;
 
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.TreeSet;
 
-import static pl.edu.pb.swd.Service.ReusableOperationsService.convertStringValueToDouble;
+import static pl.edu.pb.swd.dataOperations.Service.ReusableOperationsService.convertStringValueToDouble;
 
 @Service
 public class DataForChartsService {

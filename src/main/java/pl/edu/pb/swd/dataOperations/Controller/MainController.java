@@ -1,13 +1,13 @@
-package pl.edu.pb.swd.Controller;
+package pl.edu.pb.swd.dataOperations.Controller;
 
 import org.springframework.web.bind.annotation.*;
-import pl.edu.pb.swd.Model.Range;
-import pl.edu.pb.swd.Service.*;
+import pl.edu.pb.swd.dataOperations.Model.Range;
+import pl.edu.pb.swd.dataOperations.Service.*;
 
 import java.io.IOException;
 import java.util.*;
 
-import static pl.edu.pb.swd.Service.ReusableOperationsService.*;
+import static pl.edu.pb.swd.dataOperations.Service.ReusableOperationsService.*;
 
 @RestController
 @RequestMapping("/data")
