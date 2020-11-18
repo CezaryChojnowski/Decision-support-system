@@ -54,7 +54,7 @@ class MetricServiceSpec extends Specification {
         and: "Method readDataFromWorkingFile always return this list of lists with data"
         readWriteService.readDataFromWorkingFile() >> testData
         when:
-        LinkedList<Double> result = metricService.getVectorOfDistance(newObject, 1)
+        LinkedList<Double> result = metricService.getVectorOfDistance(newObject, 1,-1)
         then:
         result.equals(asList(35.79, 33.8, 35.3, 36.22, 34.69))
     }
@@ -66,7 +66,7 @@ class MetricServiceSpec extends Specification {
         and: "Method readDataFromWorkingFile always return this list of lists with data"
         readWriteService.readDataFromWorkingFile() >> testData
         when:
-        LinkedList<Double> result = metricService.getVectorOfDistance(newObject, 2)
+        LinkedList<Double> result = metricService.getVectorOfDistance(newObject, 2,-1)
         then:
         result.equals(asList(10.7,9.6,9.4,10.0,9.7))
     }
@@ -78,7 +78,7 @@ class MetricServiceSpec extends Specification {
         and: "Method readDataFromWorkingFile always return this list of lists with data"
         readWriteService.readDataFromWorkingFile() >> testData
         when:
-        LinkedList<Double> result = metricService.getVectorOfDistance(newObject, 3)
+        LinkedList<Double> result = metricService.getVectorOfDistance(newObject, 3, -1)
         then:
         result.equals(asList(4.3,4.9,5.0,5.2,4.8))
     }

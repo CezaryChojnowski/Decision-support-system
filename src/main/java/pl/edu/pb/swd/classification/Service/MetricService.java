@@ -3,6 +3,7 @@ package pl.edu.pb.swd.classification.Service;
 import org.springframework.stereotype.Service;
 import pl.edu.pb.swd.dataOperations.Service.ReadWriteService;
 
+import java.io.IOException;
 import java.util.*;
 import java.lang.Math;
 
@@ -66,13 +67,16 @@ public class MetricService {
         return indexesAndValuesNewObject;
     }
 
-    public LinkedList<Double> getVectorOfDistance(Map<Integer, Double> indexesAndValuesNewObject, Integer method) {
+    public LinkedList<Double> getVectorOfDistance(Map<Integer, Double> indexesAndValuesNewObject, Integer method, Integer count) {
         LinkedList<LinkedList<String>> linkedLists = readWriteService.readDataFromWorkingFile();
         int numberOfRows = linkedLists.size();
         LinkedList<Double> distance = new LinkedList<>();
         double sum = 0;
         double currentValue, currentValueNewObject;
         for (int i = 1; i < numberOfRows; i++) {
+            if (count != -1 && count == i) {
+                continue;
+            }
             sum = 0;
             List<String> row = linkedLists.get(i);
             LinkedList<Double> doubleLinkedList = new LinkedList<>();
@@ -106,12 +110,13 @@ public class MetricService {
         return distance;
     }
 
-    public LinkedHashMap<Integer, Double> listOfDistanceToMapWithIndex(LinkedList<Double> distance) {
+    public LinkedHashMap<Integer, Double> listOfDistanceToMapWithIndex(LinkedList<Double> distance, Integer count) {
         Map<Integer, Double> integerDoubleMap = new HashMap<>();
-        int i = 1;
-        for (Double value : distance) {
-            integerDoubleMap.put(i, Double.parseDouble(String.valueOf(value)));
-            i++;
+        for (int k = 0, i = 1; i < distance.size(); k++, i++) {
+            if (count != -1 && count == i) {
+                continue;
+            }
+            integerDoubleMap.put(i, Double.parseDouble(String.valueOf(distance.get(k))));
         }
         LinkedHashMap<Integer, Double> sortByDistance = new LinkedHashMap<>();
 
@@ -122,11 +127,11 @@ public class MetricService {
         return sortByDistance;
     }
 
-    public LinkedHashMap<Integer, Double> getGivenElementsByNeighborsValue(LinkedHashMap<Integer, Double> mapOfDistance, Integer neighbors){
+    public LinkedHashMap<Integer, Double> getGivenElementsByNeighborsValue(LinkedHashMap<Integer, Double> mapOfDistance, Integer neighbors) {
         LinkedHashMap<Integer, Double> result = new LinkedHashMap<>();
-        int i=0;
+        int i = 0;
         for (Map.Entry<Integer, Double> entry : mapOfDistance.entrySet()) {
-            if(i==neighbors){
+            if (i == neighbors) {
                 break;
             }
             result.put(entry.getKey(), entry.getValue());
@@ -135,7 +140,7 @@ public class MetricService {
         return result;
     }
 
-    public LinkedList<Integer> getIndexesOfTheClosestNeighbors(LinkedHashMap<Integer, Double> mapOfIndexAndDistanceClosestNeighbors){
+    public LinkedList<Integer> getIndexesOfTheClosestNeighbors(LinkedHashMap<Integer, Double> mapOfIndexAndDistanceClosestNeighbors) {
         LinkedList<Integer> result = new LinkedList<>();
         for (Map.Entry<Integer, Double> entry : mapOfIndexAndDistanceClosestNeighbors.entrySet()) {
             result.add(entry.getKey());
@@ -143,19 +148,19 @@ public class MetricService {
         return result;
     }
 
-    public LinkedList<String> getAllDecisionValueFromDistanceVector(LinkedList<Integer> indexOfTheClosestNeighbors){
+    public LinkedList<String> getAllDecisionValueFromDistanceVector(LinkedList<Integer> indexOfTheClosestNeighbors) {
         LinkedList<LinkedList<String>> linkedLists = readWriteService.readDataFromWorkingFile();
         LinkedList<String> result = new LinkedList<>();
-        int lastDecisionColumn = linkedLists.getFirst().size()-1;
-        for(Integer index: indexOfTheClosestNeighbors){
+        int lastDecisionColumn = linkedLists.getFirst().size() - 1;
+        for (Integer index : indexOfTheClosestNeighbors) {
             result.add(linkedLists.get(index).get(lastDecisionColumn));
         }
         return result;
     }
 
-    public LinkedHashMap<String, Long> getFrequencyOfResult(LinkedList<String> wordsList){
+    public LinkedHashMap<String, Long> getFrequencyOfResult(LinkedList<String> wordsList) {
         HashMap<String, Long> frequencyMap = new HashMap<>();
-        for (String s: wordsList) {
+        for (String s : wordsList) {
             Long count = frequencyMap.get(s);
             if (count == null)
                 count = 0L;
@@ -172,22 +177,21 @@ public class MetricService {
         return sortByDistance;
     }
 
-    public String getDecision(LinkedHashMap<String, Long> frequencyOfResult){
+    public String getDecision(LinkedHashMap<String, Long> frequencyOfResult) {
         Long max = frequencyOfResult.entrySet().iterator().next().getValue();
         int frequency = 0;
         LinkedList<String> result = new LinkedList<>();
         for (Map.Entry<String, Long> entry : frequencyOfResult.entrySet()) {
-            if(entry.getValue().equals(max)){
+            if (entry.getValue().equals(max)) {
                 frequency++;
             }
         }
-        if(frequency==1){
+        if (frequency == 1) {
             return frequencyOfResult.entrySet().iterator().next().getKey();
-        }
-        else{
-            int i=0;
+        } else {
+            int i = 0;
             for (Map.Entry<String, Long> entry : frequencyOfResult.entrySet()) {
-                if(i==frequency){
+                if (i == frequency) {
                     break;
                 }
                 result.add(entry.getKey());
@@ -198,11 +202,16 @@ public class MetricService {
     }
 
 
-    public String getDecisionClass(Integer neighbors, Integer method, LinkedList<String> newObject) {
+    public String getDecisionClass(Integer neighbors, Integer method, LinkedList<String> newObject) throws IOException {
+        LinkedList<LinkedList<String>> linkedLists = readWriteService.readDataFromWorkingFile();
         Map<Integer, Double> newOb = createMapWithIndexAndValueNewObject(getIndexesNumericColumn(getNumericHeaders()), newObject);
-        LinkedHashMap<Integer, Double> mapOfDistance = listOfDistanceToMapWithIndex(getVectorOfDistance(newOb, method));
+        LinkedHashMap<Integer, Double> mapOfDistance = listOfDistanceToMapWithIndex(getVectorOfDistance(newOb, method, -1), -1);
         LinkedList<Integer> indexOfTheClosesNeighbors = getIndexesOfTheClosestNeighbors(getGivenElementsByNeighborsValue(mapOfDistance, neighbors));
         LinkedHashMap<String, Long> result = getFrequencyOfResult(getAllDecisionValueFromDistanceVector(indexOfTheClosesNeighbors));
+        String decision = getDecision(result);
+        newObject.add(decision);
+        linkedLists.add(newObject);
+        readWriteService.saveToWorkingFile(linkedLists);
         return getDecision(result);
     }
 }
