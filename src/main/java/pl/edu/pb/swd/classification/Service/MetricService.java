@@ -1,5 +1,8 @@
 package pl.edu.pb.swd.classification.Service;
 
+import org.apache.commons.math3.linear.MatrixUtils;
+import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.math3.stat.correlation.Covariance;
 import org.springframework.stereotype.Service;
 import pl.edu.pb.swd.dataOperations.Service.ReadWriteService;
 
@@ -80,6 +83,9 @@ public class MetricService {
             sum = 0;
             List<String> row = linkedLists.get(i);
             LinkedList<Double> doubleLinkedList = new LinkedList<>();
+            LinkedList<Double> currentValueList = new LinkedList<>();
+            LinkedList<Double> currentValueNewObjectList = new LinkedList<>();
+            LinkedList<Double> vector = new LinkedList<>();
             for (Map.Entry<Integer, Double> entry : indexesAndValuesNewObject.entrySet()) {
                 currentValue = Double.parseDouble(row.get(entry.getKey()));
                 currentValueNewObject = Double.parseDouble(String.valueOf(entry.getValue()));
@@ -93,6 +99,10 @@ public class MetricService {
                     case 3:
                         doubleLinkedList.add(Math.abs(currentValue - currentValueNewObject));
                         break;
+                    case 4:
+                        currentValueList.add(currentValue);
+                        currentValueNewObjectList.add(currentValueNewObject);
+                        vector.add(currentValue-currentValueNewObject);
                     default:
                 }
             }
@@ -103,6 +113,24 @@ public class MetricService {
                     break;
                 case 3:
                     distance.add(Collections.max(doubleLinkedList));
+                    break;
+                case 4:
+                    double[][] currentAndNewValue= new double[2][indexesAndValuesNewObject.size()];
+                    double[][] vectorTemp = new double[1][indexesAndValuesNewObject.size()];
+                    for(int k=0; k<2; k++){
+                        for(int j=0; j<indexesAndValuesNewObject.size(); j++){
+                            if(k==0){
+                                currentAndNewValue[k][j]=currentValueList.get(j);
+                                vectorTemp[k][j]=vector.get(j);
+                            }
+                            else{
+                                currentAndNewValue[k][j]=currentValueNewObjectList.get(j);
+                            }
+                        }
+                    }
+                    RealMatrix C = new Covariance(currentAndNewValue).getCovarianceMatrix();
+                    RealMatrix subtract = MatrixUtils.createRealMatrix(vectorTemp);
+                    distance.add(Math.sqrt((subtract.multiply(C.multiply(subtract.transpose()))).getEntry(0,0)));
                     break;
                 default:
             }
