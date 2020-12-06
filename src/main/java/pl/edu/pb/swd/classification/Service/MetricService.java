@@ -33,6 +33,9 @@ public class MetricService {
             } else if (isNumeric(firstNoHeaderRow.get(i))) {
                 numericColumnName.add(headers.get(i));
             }
+            else if(!isNumeric(firstNoHeaderRow.get(i))){
+                break;
+            }
         }
         return numericColumnName;
     }
