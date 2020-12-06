@@ -5,6 +5,8 @@ import org.apache.commons.math3.linear.RealMatrix;
 import org.apache.commons.math3.stat.correlation.Covariance;
 import org.springframework.stereotype.Service;
 import pl.edu.pb.swd.classification.Service.MetricService;
+import pl.edu.pb.swd.dataOperations.Model.Range;
+import pl.edu.pb.swd.dataOperations.Service.DiscretizationService;
 import pl.edu.pb.swd.dataOperations.Service.ReadWriteService;
 
 
@@ -14,13 +16,41 @@ import java.util.*;
 @Service
 public class GroupingService {
 
+    final DiscretizationService discretizationService;
+
     final ReadWriteService readWriteService;
 
     final MetricService metricService;
 
-    public GroupingService(ReadWriteService readWriteService, MetricService metricService) {
+    public GroupingService(DiscretizationService discretizationService, ReadWriteService readWriteService, MetricService metricService) {
+        this.discretizationService = discretizationService;
         this.readWriteService = readWriteService;
         this.metricService = metricService;
+    }
+
+    public LinkedList<LinkedList<String>> randObject(Integer numberOfClasses){
+        LinkedList<String> numericHeaders = metricService.getNumericHeaders();
+        LinkedList<LinkedList<String>> randomObjects = new LinkedList<>();
+        for(int i=0; i<numberOfClasses; i++){
+            LinkedList<String> object = new LinkedList<>();
+            randomObjects.add(object);
+        }
+        for(int i=0; i<numericHeaders.size(); i++){
+            LinkedList<Double> value= new LinkedList<>();
+            String header = numericHeaders.get(i);
+            List<Range> rangeListOfColumn = discretizationService.createListRange(header, numberOfClasses);
+            for(int j=0; j<rangeListOfColumn.size(); j++){
+                Random r = new Random();
+                value.add(rangeListOfColumn.get(j).lowerValue + (rangeListOfColumn.get(j).upperValue - rangeListOfColumn.get(j).lowerValue) * r.nextDouble());
+            }
+            for(int z=0; z<value.size(); z++){
+                randomObjects.get(z).add(String.valueOf(value.get(z)));
+            }
+        }
+        for(int i=0; i<numberOfClasses; i++){
+            randomObjects.get(i).add(String.valueOf(i+1));
+        }
+        return randomObjects;
     }
 
     public LinkedList<LinkedList<String>> addClassToObject(LinkedList<LinkedList<String>> linkedLists, Integer method, LinkedList<LinkedList<String>> newObject) {
@@ -147,7 +177,8 @@ public class GroupingService {
             LinkedList<Double> currentValueNewObjectList = new LinkedList<>();
             LinkedList<Double> vector = new LinkedList<>();
             for (Map.Entry<Integer, Double> entry : indexesAndValuesNewObject.entrySet()) {
-                currentValue = Double.parseDouble(row.get(entry.getKey()));
+                    currentValue = Double.parseDouble(row.get(entry.getKey()));
+
                 currentValueNewObject = Double.parseDouble(String.valueOf(entry.getValue()));
                 switch (method) {
                     case 1:
