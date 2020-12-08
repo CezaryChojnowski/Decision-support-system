@@ -3,11 +3,10 @@ package pl.edu.pb.swd.dataOperations.Service;
 import org.springframework.stereotype.Service;
 import pl.edu.pb.swd.dataOperations.Model.Range;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.TreeSet;
+import java.util.*;
 
 import static pl.edu.pb.swd.dataOperations.Service.ReusableOperationsService.convertStringValueToDouble;
+import static pl.edu.pb.swd.dataOperations.Service.ReusableOperationsService.findColumnIndex;
 
 @Service
 public class DataForChartsService {
@@ -27,15 +26,38 @@ public class DataForChartsService {
     public LinkedList<LinkedList<String>> getDataTo2dChart(String firstColumnName,
                                                String secondColumnName,
                                                String thirdColumnName){
+        if( thirdColumnName!=null && !thirdColumnName.isEmpty()){
+            LinkedList<LinkedList<String>> linkedLists = new LinkedList<>();
+            LinkedList<LinkedList<String>> data = reusableOperationsService.readWriteService.readDataFromWorkingFile();
+            int firstColumnIndex = findColumnIndex(data.getFirst(), firstColumnName);
+            int secondColumnIndex = findColumnIndex(data.getFirst(), secondColumnName);
+            Integer columnIndex = findColumnIndex(data.getFirst(), thirdColumnName);
+            data.remove();
+            Set<String> classTemp = new HashSet<>();
+            for(LinkedList<String> row: data){
+                classTemp.add(row.get(columnIndex));
+            }
+            Iterator<String> itr = classTemp.iterator();
+            while(itr.hasNext()){
+                LinkedList<String> firstColumn = new LinkedList<>();
+                LinkedList<String> secondColumn = new LinkedList<>();
+                String temp = itr.next();
+                for(int i=0; i<data.size(); i++){
+                    if(temp.equals(data.get(i).get(columnIndex))){
+                        firstColumn.add(data.get(i).get(firstColumnIndex));
+                        secondColumn.add(data.get(i).get(secondColumnIndex));
+                    }
+                }
+                linkedLists.addAll(Collections.singleton(firstColumn));
+                linkedLists.addAll(Collections.singleton(secondColumn));
+            }
+            return linkedLists;
+        }
         LinkedList<String> firstColumn = reusableOperationsService.getWholeColumnByIndex(firstColumnName);
         LinkedList<String> secondColumn = reusableOperationsService.getWholeColumnByIndex(secondColumnName);
         LinkedList<LinkedList<String>> linkedLists = new LinkedList<>();
         linkedLists.addAll(Collections.singleton(firstColumn));
         linkedLists.addAll(Collections.singleton(secondColumn));
-        if( thirdColumnName!=null && !thirdColumnName.isEmpty()){
-            LinkedList<String> thirdColumn = reusableOperationsService.getWholeColumnByIndex(thirdColumnName);
-            linkedLists.addAll(Collections.singleton(thirdColumn));
-        }
         return linkedLists;
     }
 
