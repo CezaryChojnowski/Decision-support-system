@@ -4,10 +4,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import pl.edu.pb.swd.cuts.Model.Line;
+import pl.edu.pb.swd.cuts.Model.CutResultForTwoDimensionalPlane;
 import pl.edu.pb.swd.cuts.Service.CutsService;
 
-import java.util.List;
 
 @RestController
 @RequestMapping(value = "/cuts")
@@ -24,7 +23,7 @@ public class CutsController {
     }
 
     @GetMapping
-    public List<Line> getAllCuts() {
+    public CutResultForTwoDimensionalPlane getAllCuts() {
         return cutsService.createCuts();
     }
 }

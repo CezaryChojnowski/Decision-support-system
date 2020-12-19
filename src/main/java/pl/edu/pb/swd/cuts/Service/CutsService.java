@@ -1,9 +1,7 @@
 package pl.edu.pb.swd.cuts.Service;
 
 import org.springframework.stereotype.Service;
-import pl.edu.pb.swd.cuts.Model.Line;
-import pl.edu.pb.swd.cuts.Model.Point;
-import pl.edu.pb.swd.cuts.Model.Row;
+import pl.edu.pb.swd.cuts.Model.*;
 import pl.edu.pb.swd.dataOperations.Service.ReadWriteService;
 
 import java.util.*;
@@ -34,7 +32,7 @@ public class CutsService {
         return rows;
     }
 
-    public List<Line> createCuts() {
+    public CutResultForTwoDimensionalPlane createCuts() {
         LinkedList<LinkedList<String>> data = readWriteService.readDataFromWorkingFile();
         List<Row> rows = listOfListToListOfRowObjects(data);
 
@@ -49,12 +47,14 @@ public class CutsService {
         LinkedList<Row> rowsSortByX = new LinkedList<>(rowsSortXTemp);
         LinkedList<Row> rowsSortByY = new LinkedList<>(rowsSortYTemp);
         Map<Integer, Integer> countByClass = new LinkedHashMap<>();
-        int cuts = 0;
+        int numberOfCuts = 0;
+        int numberOfObjectsRemoved = 0;
         double minX = rowsSortByX.getFirst().getX();
         double minY = rowsSortByY.getFirst().getY();
         double maxX = rowsSortByX.getLast().getX();
         double maxY = rowsSortByY.getLast().getY();
         LinkedList<Line> lines = new LinkedList<>();
+        LinkedList<HyperPlane> hyperPlanes = new LinkedList<>();
         do {
             countByClass.put(0, 0);
             countByClass.put(1, 0);
@@ -174,8 +174,42 @@ public class CutsService {
 
             rowsSortByX.removeAll(rowsList.get(key));
             rowsSortByY.removeAll(rowsList.get(key));
-            cuts++;
+            hyperPlanes.add(new HyperPlane(rowsList.get(key)));
+            numberOfCuts++;
         } while (rowsSortByX.size() > 0);
-        return lines;
+        System.out.println(hyperPlanes);
+
+        for (HyperPlane plane : hyperPlanes) {
+            List<Integer> vector = new ArrayList<>();
+            double x = plane.getRows().get(0).getX();
+            double y = plane.getRows().get(0).getY();
+            for (Line line : lines) {
+                if (line.getDirection().equals("minX") && x <= line.getPointA().getX()) {
+                    vector.add(1);
+                } else if (line.getDirection().equals("minX") && x >= line.getPointA().getX()) {
+                    vector.add(0);
+                } else if (line.getDirection().equals("maxX") && x >= line.getPointA().getX()) {
+                    vector.add(1);
+                } else if (line.getDirection().equals("maxX") && x <= line.getPointA().getX()) {
+                    vector.add(1);
+                } else if (line.getDirection().equals("minY") && y <= line.getPointA().getY()) {
+                    vector.add(1);
+                } else if (line.getDirection().equals("minY") && y >= line.getPointA().getY()) {
+                    vector.add(0);
+                } else if (line.getDirection().equals("maxY") && y >= line.getPointA().getY()) {
+                    vector.add(1);
+                } else if (line.getDirection().equals("maxY") && y <= line.getPointA().getY()) {
+                    vector.add(0);
+                }
+            }
+            plane.setVector(vector);
+        }
+        CutResultForTwoDimensionalPlane cutResultForTwoDimensionalPlane = new CutResultForTwoDimensionalPlane();
+        cutResultForTwoDimensionalPlane.setHyperPlanes(hyperPlanes);
+        cutResultForTwoDimensionalPlane.setLines(lines);
+        cutResultForTwoDimensionalPlane.setNumberOfCuts(numberOfCuts);
+        cutResultForTwoDimensionalPlane.setNumberOfObjectsRemoved(numberOfObjectsRemoved);
+        System.out.print(hyperPlanes);
+        return cutResultForTwoDimensionalPlane;
     }
 }
