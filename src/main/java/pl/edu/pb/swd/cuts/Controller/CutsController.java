@@ -4,8 +4,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import pl.edu.pb.swd.cuts.Model.CutResultForMultiDimensionalPlane;
 import pl.edu.pb.swd.cuts.Model.CutResultForTwoDimensionalPlane;
+import pl.edu.pb.swd.cuts.Model.Line;
 import pl.edu.pb.swd.cuts.Service.CutsService;
+
+import java.util.LinkedList;
+import java.util.List;
 
 
 @RestController
@@ -23,7 +28,8 @@ public class CutsController {
     }
 
     @GetMapping
-    public CutResultForTwoDimensionalPlane getAllCuts() {
-        return cutsService.createCuts();
+    public List<Line> getAllCutsForTwoDimensionalPlane() {
+        CutResultForTwoDimensionalPlane cutResultForTwoDimensionalPlane = cutsService.createCuts();
+        return cutResultForTwoDimensionalPlane.getLines();
     }
 }
