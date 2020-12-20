@@ -48,6 +48,7 @@ public class CutsService {
         LinkedList<Row> rowsSortByY = new LinkedList<>(rowsSortYTemp);
         Map<Integer, Integer> countByClass = new LinkedHashMap<>();
         int numberOfCuts = 0;
+        int iteracja =0;
         int numberOfObjectsRemoved = 0;
         double minX = rowsSortByX.getFirst().getX();
         double minY = rowsSortByY.getFirst().getY();
@@ -91,6 +92,10 @@ public class CutsService {
                         count++;
                         rowsListByIndex.add(rowsSortByX.get(j));
                     }
+                    boolean result = checkIfInSetExistsDistinctPoint(rowsSortByX, rowsListByIndex.getLast(), false);
+                    if (result) {
+                        rowsListByIndex = removeAllDistinctPoint(rowsListByIndex, rowsListByIndex.getLast(), false);
+                    }
                     rowsList.set(i, rowsListByIndex);
                 } else {
                     String classifier = rowsSortByY.getFirst().getClassifier();
@@ -101,12 +106,16 @@ public class CutsService {
                         count++;
                         rowsListByIndex.add(rowsSortByY.get(j));
                     }
+                    boolean result = checkIfInSetExistsDistinctPoint(rowsSortByX, rowsListByIndex.getLast(), true);
+                    if (result) {
+                        rowsListByIndex = removeAllDistinctPoint(rowsListByIndex, rowsListByIndex.getLast(), true);
+                    }
                     rowsList.set(i, rowsListByIndex);
                 }
                 if (i == 0) {
-                    countByClass.put(0, count);
+                    countByClass.put(0, rowsListByIndex.size());
                 } else {
-                    countByClass.put(1, count);
+                    countByClass.put(1, rowsListByIndex.size());
                 }
             }
             for (int i = 2; i < 4; i++) {
@@ -122,6 +131,10 @@ public class CutsService {
                         count++;
                         rowsListByIndex.add(rowsSortByX.get(j));
                     }
+                    boolean result = checkIfInSetExistsDistinctPoint(rowsSortByX, rowsListByIndex.getLast(), false);
+                    if (result) {
+                        rowsListByIndex = removeAllDistinctPoint(rowsListByIndex, rowsListByIndex.getLast(), false);
+                    }
                     rowsList.set(i, rowsListByIndex);
                 } else {
                     int size = rowsSortByY.size();
@@ -133,13 +146,24 @@ public class CutsService {
                         count++;
                         rowsListByIndex.add(rowsSortByY.get(j));
                     }
+                    boolean result = checkIfInSetExistsDistinctPoint(rowsSortByX, rowsListByIndex.getLast(), true);
+                    if (result) {
+                        rowsListByIndex = removeAllDistinctPoint(rowsListByIndex, rowsListByIndex.getLast(), true);
+                    }
                     rowsList.set(i, rowsListByIndex);
                 }
                 if (i == 2) {
-                    countByClass.put(2, count);
+                    countByClass.put(2, rowsListByIndex.size());
                 } else {
-                    countByClass.put(3, count);
+                    countByClass.put(3, rowsListByIndex.size());
                 }
+            }
+            if(checkIfAllSubListsOfRowsAreEmpty(rowsList)){
+                Row row = rowsSortByX.getFirst();
+                rowsSortByX.remove(row);
+                rowsSortByY.remove(row);
+                numberOfObjectsRemoved++;
+                continue;
             }
 
             Map<Integer, Integer> result = countByClass.entrySet()
@@ -155,20 +179,18 @@ public class CutsService {
             }
             Line line = new Line();
             if (key == 0) {
-                line = new Line(new Point(rowsList.get(0).getLast().getX(), minY), new Point(rowsList.get(0).getLast().getX(), maxY));
+                line = new Line(new Point(rowsList.get(0).getFirst().getX(), minY), new Point(rowsList.get(0).getFirst().getX(), maxY));
                 line.setDirection("minX");
             } else if (key == 1) {
                 line = new Line(new Point(minX, rowsList.get(1).getLast().getY()), new Point(maxX, rowsList.get(1).getLast().getY()));
                 line.setDirection("minY");
 
             } else if (key == 2) {
-                line = new Line(new Point(rowsList.get(2).getFirst().getX(), minY), new Point(rowsList.get(2).getFirst().getX(), maxY));
+                line = new Line(new Point(rowsList.get(2).getLast().getX(), minY), new Point(rowsList.get(2).getLast().getX(), maxY));
                 line.setDirection("maxX");
-
             } else if (key == 3) {
-                line = new Line(new Point(minX, rowsList.get(3).getFirst().getY()), new Point(maxX, rowsList.get(3).getFirst().getY()));
+                line = new Line(new Point(minX, rowsList.get(3).getLast().getY()), new Point(maxX, rowsList.get(3).getLast().getY()));
                 line.setDirection("maxY");
-
             }
             lines.add(line);
 
@@ -177,7 +199,6 @@ public class CutsService {
             hyperPlanes.add(new HyperPlane(rowsList.get(key)));
             numberOfCuts++;
         } while (rowsSortByX.size() > 0);
-        System.out.println(hyperPlanes);
 
         for (HyperPlane plane : hyperPlanes) {
             List<Integer> vector = new ArrayList<>();
@@ -209,7 +230,52 @@ public class CutsService {
         cutResultForTwoDimensionalPlane.setLines(lines);
         cutResultForTwoDimensionalPlane.setNumberOfCuts(numberOfCuts);
         cutResultForTwoDimensionalPlane.setNumberOfObjectsRemoved(numberOfObjectsRemoved);
-        System.out.print(hyperPlanes);
         return cutResultForTwoDimensionalPlane;
     }
+
+    public boolean checkIfInSetExistsDistinctPoint(LinkedList<Row> rows, Row row, boolean isY) {
+        boolean existsDistinctPoint = false;
+        int count = 0;
+        if (isY) {
+            for (Row rowTemp : rows) {
+                if (rowTemp.getY() == row.getY() && !rowTemp.getClassifier().equals(row.getClassifier())) {
+                    count++;
+                }
+            }
+            if (count > 0) {
+                existsDistinctPoint = true;
+            }
+        } else {
+            for (Row rowTemp : rows) {
+                if (rowTemp.getX() == row.getX() && !rowTemp.getClassifier().equals(row.getClassifier())) {
+                    count++;
+                }
+            }
+            if (count > 0) {
+                existsDistinctPoint = true;
+            }
+        }
+        return existsDistinctPoint;
+    }
+
+    public LinkedList<Row> removeAllDistinctPoint(LinkedList<Row> rows, Row row, boolean isY) {
+        if (isY) {
+            rows.removeIf(row1 -> row1.getY() == row.getY());
+        } else {
+            rows.removeIf(row1 -> row1.getX() == row.getX());
+        }
+        return rows;
+    }
+
+    public boolean checkIfAllSubListsOfRowsAreEmpty(LinkedList<LinkedList<Row>> rows){
+        boolean allSubListAreEmpty = true;
+        for(LinkedList<Row> rowLinkedList: rows){
+            if (!rowLinkedList.isEmpty()) {
+                allSubListAreEmpty = false;
+                break;
+            }
+        }
+        return allSubListAreEmpty;
+    }
+
 }
