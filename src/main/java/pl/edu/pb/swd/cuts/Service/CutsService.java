@@ -33,6 +33,7 @@ public class CutsService {
     }
 
     public CutResultForTwoDimensionalPlane createCuts() {
+        LinkedList<Row> removedObject = new LinkedList<>();
         LinkedList<LinkedList<String>> data = readWriteService.readDataFromWorkingFile();
         List<Row> rows = listOfListToListOfRowObjects(data);
 
@@ -162,6 +163,7 @@ public class CutsService {
                 Row row = rowsSortByX.getFirst();
                 rowsSortByX.remove(row);
                 rowsSortByY.remove(row);
+                removedObject.add(row);
                 numberOfObjectsRemoved++;
                 continue;
             }
