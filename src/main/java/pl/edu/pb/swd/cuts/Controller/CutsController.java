@@ -3,12 +3,10 @@ package pl.edu.pb.swd.cuts.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import pl.edu.pb.swd.cuts.Model.CutResultForMultiDimensionalPlane;
-import pl.edu.pb.swd.cuts.Model.CutResultForTwoDimensionalPlane;
-import pl.edu.pb.swd.cuts.Model.Line;
-import pl.edu.pb.swd.cuts.Model.ResultInfoMultiDimensionalPlane;
+import pl.edu.pb.swd.cuts.Model.*;
 import pl.edu.pb.swd.cuts.Service.CutsService;
 
+import java.util.LinkedList;
 import java.util.List;
 
 
@@ -33,9 +31,7 @@ public class CutsController {
     }
 
     @GetMapping("/multidimensionalSet")
-    public ResultInfoMultiDimensionalPlane getAllCutsForMultiDimensionalPlane(){
-        int numberOfObjectsRemoved = 2;
-        int numberOfCuts = 3;
-        return new ResultInfoMultiDimensionalPlane(numberOfObjectsRemoved,numberOfCuts);
+    public ResultInfoMultiDimensionalPlane getAllCutsForMultiDimensionalPlane() {
+        return cutsService.cutsMultiDimensionalSet();
     }
 }

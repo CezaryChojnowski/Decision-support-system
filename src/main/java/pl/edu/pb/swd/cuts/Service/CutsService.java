@@ -49,7 +49,7 @@ public class CutsService {
         LinkedList<Row> rowsSortByY = new LinkedList<>(rowsSortYTemp);
         Map<Integer, Integer> countByClass = new LinkedHashMap<>();
         int numberOfCuts = 0;
-        int iteracja =0;
+        int iteracja = 0;
         int numberOfObjectsRemoved = 0;
         double minX = rowsSortByX.getFirst().getX();
         double minY = rowsSortByY.getFirst().getY();
@@ -159,7 +159,7 @@ public class CutsService {
                     countByClass.put(3, rowsListByIndex.size());
                 }
             }
-            if(checkIfAllSubListsOfRowsAreEmpty(rowsList)){
+            if (checkIfAllSubListsOfRowsAreEmpty(rowsList)) {
                 Row row = rowsSortByX.getFirst();
                 rowsSortByX.remove(row);
                 rowsSortByY.remove(row);
@@ -269,15 +269,59 @@ public class CutsService {
         return rows;
     }
 
-    public boolean checkIfAllSubListsOfRowsAreEmpty(LinkedList<LinkedList<Row>> rows){
+    public boolean checkIfAllSubListsOfRowsAreEmpty(LinkedList<LinkedList<Row>> rows) {
         boolean allSubListAreEmpty = true;
-        for(LinkedList<Row> rowLinkedList: rows){
+        for (LinkedList<Row> rowLinkedList : rows) {
             if (!rowLinkedList.isEmpty()) {
                 allSubListAreEmpty = false;
                 break;
             }
         }
         return allSubListAreEmpty;
+    }
+
+    public LinkedList<RowMultiDimensional> listsOfListsToRowsMultiDimensional(LinkedList<LinkedList<String>> data) {
+        LinkedList<RowMultiDimensional> rows = new LinkedList<>();
+        for (int i = 1; i < data.size(); i++) {
+            LinkedList<Double> doubleRows = new LinkedList<>();
+            String classifier;
+            RowMultiDimensional row = new RowMultiDimensional();
+            for (int j = 0; j < data.getFirst().size() - 1; j++) {
+                doubleRows.add(Double.valueOf(data.get(i).get(j)));
+            }
+            classifier = data.get(i).getLast();
+            row.setRow(doubleRows);
+            row.setClassifier(classifier);
+            rows.add(row);
+        }
+        return rows;
+    }
+
+    public ResultInfoMultiDimensionalPlane cutsMultiDimensionalSet() {
+        LinkedList<LinkedList<String>> listOfStringLists = readWriteService.readDataFromWorkingFile();
+        LinkedList<RowMultiDimensional> listOfRows = listsOfListsToRowsMultiDimensional(listOfStringLists);
+        System.out.println(listOfRows);
+        for (int i = 0; i < listOfRows.getFirst().getRow().size(); i++) {
+            LinkedList<RowMultiDimensional> objectsForPotentialClassification = new LinkedList<>();
+            List<RowMultiDimensional> listOfRowsSortedByithElement = new ArrayList<>(listOfRows);
+            int first = 0;
+            int iterator = i;
+            listOfRowsSortedByithElement.sort((l1, l2) -> l1.getRow().get(iterator).compareTo(l2.getRow().get(iterator)));
+            int count = 0;
+            for (int j = 0; j < listOfRows.size(); j++) {
+                String classifier = listOfRowsSortedByithElement.get(first).getClassifier();
+                if (!classifier.equals(listOfRowsSortedByithElement.get(j).getClassifier())) {
+                    break;
+                }
+                count++;
+                objectsForPotentialClassification.add(new RowMultiDimensional(listOfRowsSortedByithElement.get(j).getRow(), listOfRowsSortedByithElement.get(j).getClassifier()));
+            }
+//            Collections.reverse(listToSort);
+//            System.out.println(listToSort);
+        }
+
+
+        return new ResultInfoMultiDimensionalPlane(2, 3);
     }
 
 }
