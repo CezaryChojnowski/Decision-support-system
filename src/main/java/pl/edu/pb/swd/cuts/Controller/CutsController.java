@@ -34,4 +34,11 @@ public class CutsController {
     public ResultInfoMultiDimensionalPlane getAllCutsForMultiDimensionalPlane() {
         return cutsService.cutsMultiDimensionalSet();
     }
+
+    @GetMapping("/twoDimensionalSet")
+    public ResultInfoMultiDimensionalPlane getNumberOfCutsAndNumberOfRemovedObject(){
+        CutResultForTwoDimensionalPlane cutResultForTwoDimensionalPlane = cutsService.createCuts();
+        return new ResultInfoMultiDimensionalPlane(cutResultForTwoDimensionalPlane.getNumberOfObjectsRemoved(),
+                cutResultForTwoDimensionalPlane.getNumberOfCuts());
+    }
 }
