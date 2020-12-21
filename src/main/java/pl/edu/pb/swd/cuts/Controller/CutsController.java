@@ -26,6 +26,7 @@ public class CutsController {
     @GetMapping
     public List<Line> getAllCutsForTwoDimensionalPlane() throws IOException {
         CutResultForTwoDimensionalPlane cutResultForTwoDimensionalPlane = cutsService.createCuts();
+        System.out.println(cutResultForTwoDimensionalPlane);
         cutsService.overwriteWithBinaryVector2DSet();
         return cutResultForTwoDimensionalPlane.getLines();
 

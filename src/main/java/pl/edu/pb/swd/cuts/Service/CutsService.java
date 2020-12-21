@@ -222,11 +222,113 @@ public class CutsService {
                     countByClass.put(3, rowsListByIndex.size());
                 }
             }
+
             if (checkIfAllSubListsOfRowsAreEmpty(rowsList)) {
-                Row row = rowsSortByX.getFirst();
-                rowsSortByX.remove(row);
-                rowsSortByY.remove(row);
-                removedObject.add(row);
+                int cutAfterRemoved =1;
+                Row rowResult = new Row();
+                for(Row row: rowsSortByX){
+                    LinkedList<Row> cloned_list = new LinkedList<>(rowsSortByX);
+                    LinkedList<Row> cloned_list2 = new LinkedList<>(rowsSortByY);
+                    cloned_list.remove(row);
+                    cloned_list.remove(row);
+                    for (int i = 0; i < 2; i++) {
+                        LinkedList<Row> rowsListByIndex = new LinkedList<>();
+                        int count = 0;
+                        if (i == 0) {
+                            String classifier = cloned_list.getFirst().getClassifier();
+                            for (int j = 0; j < cloned_list.size(); j++) {
+                                if (!classifier.equals(cloned_list.get(j).getClassifier())) {
+                                    break;
+                                }
+                                count++;
+                                rowsListByIndex.add(cloned_list.get(j));
+                            }
+                            boolean result = checkIfInSetExistsDistinctPoint(cloned_list, rowsListByIndex.getLast(), false);
+                            if (result) {
+                                rowsListByIndex = removeAllDistinctPoint(rowsListByIndex, rowsListByIndex.getLast(), false);
+                            }
+                            rowsList.set(i, rowsListByIndex);
+                        } else {
+                            String classifier = cloned_list2.getFirst().getClassifier();
+                            for (int j = 0; j < cloned_list2.size(); j++) {
+                                if (!classifier.equals(cloned_list2.get(j).getClassifier())) {
+                                    break;
+                                }
+                                count++;
+                                rowsListByIndex.add(cloned_list2.get(j));
+                            }
+                            boolean result = checkIfInSetExistsDistinctPoint(cloned_list, rowsListByIndex.getLast(), true);
+                            if (result) {
+                                rowsListByIndex = removeAllDistinctPoint(rowsListByIndex, rowsListByIndex.getLast(), true);
+                            }
+                            rowsList.set(i, rowsListByIndex);
+                        }
+                        if (i == 0) {
+                            countByClass.put(0, rowsListByIndex.size());
+                        } else {
+                            countByClass.put(1, rowsListByIndex.size());
+                        }
+                    }
+                    for (int i = 2; i < 4; i++) {
+                        LinkedList<Row> rowsListByIndex = new LinkedList<>();
+                        int count = 0;
+                        if (i == 2) {
+                            int size = cloned_list.size();
+                            String classifier = cloned_list.getLast().getClassifier();
+                            for (int j = size - 1; j >= 0; j--) {
+                                if (!classifier.equals(cloned_list.get(j).getClassifier())) {
+                                    break;
+                                }
+                                count++;
+                                rowsListByIndex.add(cloned_list.get(j));
+                            }
+                            boolean result = checkIfInSetExistsDistinctPoint(cloned_list, rowsListByIndex.getLast(), false);
+                            if (result) {
+                                rowsListByIndex = removeAllDistinctPoint(rowsListByIndex, rowsListByIndex.getLast(), false);
+                            }
+                            rowsList.set(i, rowsListByIndex);
+                        } else {
+                            int size = cloned_list2.size();
+                            String classifier = cloned_list2.getLast().getClassifier();
+                            for (int j = size - 1; j >= 0; j--) {
+                                if (!classifier.equals(cloned_list2.get(j).getClassifier())) {
+                                    break;
+                                }
+                                count++;
+                                rowsListByIndex.add(cloned_list2.get(j));
+                            }
+                            boolean result = checkIfInSetExistsDistinctPoint(cloned_list, rowsListByIndex.getLast(), true);
+                            if (result) {
+                                rowsListByIndex = removeAllDistinctPoint(rowsListByIndex, rowsListByIndex.getLast(), true);
+                            }
+                            rowsList.set(i, rowsListByIndex);
+                        }
+                        if (i == 2) {
+                            countByClass.put(2, rowsListByIndex.size());
+                        } else {
+                            countByClass.put(3, rowsListByIndex.size());
+                        }
+                    }
+                    Map<Integer, Integer> result = countByClass.entrySet()
+                            .stream()
+                            .sorted(Map.Entry.comparingByValue())
+                            .collect(Collectors.toMap(
+                                    Map.Entry::getKey,
+                                    Map.Entry::getValue,
+                                    (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+                    Integer key = 0;
+                    for (Map.Entry<Integer, Integer> entry : result.entrySet()) {
+                        key = entry.getKey();
+                    }
+                    if(rowsList.get(key).size()>=cutAfterRemoved) {
+                        cutAfterRemoved = rowsList.get(key).size();
+                        rowResult = row;
+                    }
+                }
+
+                rowsSortByX.remove(rowResult);
+                rowsSortByY.remove(rowResult);
+                removedObject.add(rowResult);
                 numberOfObjectsRemoved++;
                 continue;
             }
@@ -244,7 +346,7 @@ public class CutsService {
             }
             Line line = new Line();
             if (key == 0) {
-                line = new Line(new Point(rowsList.get(0).getFirst().getX(), minY), new Point(rowsList.get(0).getFirst().getX(), maxY));
+                line = new Line(new Point(rowsList.get(0).getLast().getX(), minY), new Point(rowsList.get(0).getLast().getX(), maxY));
                 line.setDirection("minX");
             } else if (key == 1) {
                 line = new Line(new Point(minX, rowsList.get(1).getLast().getY()), new Point(maxX, rowsList.get(1).getLast().getY()));
@@ -601,6 +703,4 @@ public class CutsService {
         writer.writeAll(dataTemp);
         writer.close();
     }
-
-
 }

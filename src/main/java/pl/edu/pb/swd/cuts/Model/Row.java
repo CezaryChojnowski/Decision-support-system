@@ -38,6 +38,9 @@ public class Row{
         this.classifier = classifier;
     }
 
+    public Row() {
+    }
+
     @Override
     public String toString() {
         return "Row{" +
