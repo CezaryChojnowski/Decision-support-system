@@ -35,32 +35,60 @@ public class CutsService {
         return rows;
     }
 
+    public String classifyMoreThanTwoDimensionalObject(LinkedList<Double> object){
+        CutResultForMultiDimensionalPlane cutResultForMultiDimensionalPlane = cutsMultiDimensionalSet();
+        List<HyperPlaneMoreThan2D> hyperPlanes = cutResultForMultiDimensionalPlane.getHyperPlanes();
+        List<Cut> cuts = cutResultForMultiDimensionalPlane.getCuts();
+        String classifier = null;
+        int firstEl =0;
+        for(int i=0; i<cuts.size(); i++){
+            if(cuts.get(i).getDirection().equals("minX")){
+                if(object.get(cuts.get(i).getIndex())<=cuts.get(i).getValue()){
+                    classifier = hyperPlanes.get(i).getRows().get(firstEl).getClassifier();
+                    break;
+                }
+            }
+            else{
+                if(object.get(cuts.get(i).getIndex())>=cuts.get(i).getValue()){
+                    classifier = hyperPlanes.get(i).getRows().get(firstEl).getClassifier();
+                    break;
+                }
+            }
+        }
+        return classifier;
+    }
+
     public String classifyTwoDimensionalObject(Row row) {
         CutResultForTwoDimensionalPlane cutResultForTwoDimensionalPlane = createCuts();
         List<HyperPlane> hyperPlanes = cutResultForTwoDimensionalPlane.getHyperPlanes();
         List<Line> lines = cutResultForTwoDimensionalPlane.getLines();
         double x = row.getX();
         double y = row.getY();
+        int firstEl=0;
         String classifier = null;
         for(int i=0; i<lines.size(); i++){
             if(lines.get(i).getDirection().equals("minX")){
                 if(x<=lines.get(i).getPointA().getX()){
-                    classifier = hyperPlanes.get(i).getRows().get(0).getClassifier();
+                    classifier = hyperPlanes.get(i).getRows().get(firstEl).getClassifier();
+                    break;
                 }
             }
             else if(lines.get(i).getDirection().equals("minY")){
                 if(y<=lines.get(i).getPointA().getY()){
-                    classifier = hyperPlanes.get(i).getRows().get(0).getClassifier();
+                    classifier = hyperPlanes.get(i).getRows().get(firstEl).getClassifier();
+                    break;
                 }
             }
             else if(lines.get(i).getDirection().equals("maxX")){
                 if(x>=lines.get(i).getPointA().getY()){
-                    classifier = hyperPlanes.get(i).getRows().get(0).getClassifier();
+                    classifier = hyperPlanes.get(i).getRows().get(firstEl).getClassifier();
+                    break;
                 }
             }
             else if(lines.get(i).getDirection().equals("maxY")){
                 if(y>=lines.get(i).getPointA().getY()){
-                    classifier = hyperPlanes.get(i).getRows().get(0).getClassifier();
+                    classifier = hyperPlanes.get(i).getRows().get(firstEl).getClassifier();
+                    break;
                 }
             }
         }
@@ -332,7 +360,7 @@ public class CutsService {
         return rows;
     }
 
-    public CutResultForMultiDimensionalPlane cutsMultiDimensionalSet() throws IOException {
+    public CutResultForMultiDimensionalPlane cutsMultiDimensionalSet() {
         LinkedList<LinkedList<String>> listOfStringLists = readWriteService.readDataFromWorkingFile();
         LinkedList<RowMultiDimensional> listOfRows = listsOfListsToRowsMultiDimensional(listOfStringLists);
         LinkedList<Cut> cuts = new LinkedList<>();

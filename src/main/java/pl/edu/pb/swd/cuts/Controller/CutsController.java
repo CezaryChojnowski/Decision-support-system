@@ -32,14 +32,7 @@ public class CutsController {
     }
     @PostMapping("/classifyMoreThan2D")
     public String classifyMoreThan2D(@RequestBody LinkedList<Double> object){
-        String result ="";
-        for(Double value: object){
-            result=result+value + ", ";
-        }
-        StringBuffer sb= new StringBuffer(result);
-        sb.deleteCharAt(sb.length()-1);
-        sb.deleteCharAt(sb.length()-1);
-        return sb.toString();
+        return cutsService.classifyMoreThanTwoDimensionalObject(object);
     }
 
     @PostMapping("/classify2D")
