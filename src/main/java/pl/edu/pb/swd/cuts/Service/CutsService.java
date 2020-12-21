@@ -35,6 +35,38 @@ public class CutsService {
         return rows;
     }
 
+    public String classifyTwoDimensionalObject(Row row) {
+        CutResultForTwoDimensionalPlane cutResultForTwoDimensionalPlane = createCuts();
+        List<HyperPlane> hyperPlanes = cutResultForTwoDimensionalPlane.getHyperPlanes();
+        List<Line> lines = cutResultForTwoDimensionalPlane.getLines();
+        double x = row.getX();
+        double y = row.getY();
+        String classifier = null;
+        for(int i=0; i<lines.size(); i++){
+            if(lines.get(i).getDirection().equals("minX")){
+                if(x<=lines.get(i).getPointA().getX()){
+                    classifier = hyperPlanes.get(i).getRows().get(0).getClassifier();
+                }
+            }
+            else if(lines.get(i).getDirection().equals("minY")){
+                if(y<=lines.get(i).getPointA().getY()){
+                    classifier = hyperPlanes.get(i).getRows().get(0).getClassifier();
+                }
+            }
+            else if(lines.get(i).getDirection().equals("maxX")){
+                if(x>=lines.get(i).getPointA().getY()){
+                    classifier = hyperPlanes.get(i).getRows().get(0).getClassifier();
+                }
+            }
+            else if(lines.get(i).getDirection().equals("maxY")){
+                if(y>=lines.get(i).getPointA().getY()){
+                    classifier = hyperPlanes.get(i).getRows().get(0).getClassifier();
+                }
+            }
+        }
+        return classifier;
+    }
+
     public CutResultForTwoDimensionalPlane createCuts() {
         LinkedList<Row> removedObject = new LinkedList<>();
         LinkedList<LinkedList<String>> data = readWriteService.readDataFromWorkingFile();

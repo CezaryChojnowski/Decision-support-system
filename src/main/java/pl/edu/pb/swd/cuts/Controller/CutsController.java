@@ -1,12 +1,11 @@
 package pl.edu.pb.swd.cuts.Controller;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import pl.edu.pb.swd.cuts.Model.*;
 import pl.edu.pb.swd.cuts.Service.CutsService;
 
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.List;
 
 
@@ -30,6 +29,22 @@ public class CutsController {
         cutsService.overwriteWithBinaryVector2DSet();
         return cutResultForTwoDimensionalPlane.getLines();
 
+    }
+    @PostMapping("/classifyMoreThan2D")
+    public String classifyMoreThan2D(@RequestBody LinkedList<Double> object){
+        String result ="";
+        for(Double value: object){
+            result=result+value + ", ";
+        }
+        StringBuffer sb= new StringBuffer(result);
+        sb.deleteCharAt(sb.length()-1);
+        sb.deleteCharAt(sb.length()-1);
+        return sb.toString();
+    }
+
+    @PostMapping("/classify2D")
+    public String classify2D(@RequestBody Row row){
+        return cutsService.classifyTwoDimensionalObject(row);
     }
 
     @GetMapping("/multidimensionalSet")
