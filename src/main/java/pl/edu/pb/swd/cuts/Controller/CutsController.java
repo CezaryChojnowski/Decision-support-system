@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 import pl.edu.pb.swd.cuts.Model.*;
 import pl.edu.pb.swd.cuts.Service.CutsService;
 
-import java.util.LinkedList;
+import java.io.IOException;
 import java.util.List;
 
 
@@ -25,14 +25,19 @@ public class CutsController {
     }
 
     @GetMapping
-    public List<Line> getAllCutsForTwoDimensionalPlane() {
+    public List<Line> getAllCutsForTwoDimensionalPlane() throws IOException {
         CutResultForTwoDimensionalPlane cutResultForTwoDimensionalPlane = cutsService.createCuts();
+        cutsService.overwriteWithBinaryVector2DSet();
         return cutResultForTwoDimensionalPlane.getLines();
+
     }
 
     @GetMapping("/multidimensionalSet")
-    public ResultInfoMultiDimensionalPlane getAllCutsForMultiDimensionalPlane() {
-        return cutsService.cutsMultiDimensionalSet();
+    public ResultInfoMultiDimensionalPlane getAllCutsForMultiDimensionalPlane() throws IOException {
+        CutResultForMultiDimensionalPlane cutResultForMultiDimensionalPlane = cutsService.cutsMultiDimensionalSet();
+        cutsService.overwriteWithBinaryVectorMoreThan2DSet();
+        return new ResultInfoMultiDimensionalPlane(cutResultForMultiDimensionalPlane.getNumberOfObjectsRemoved(),
+                cutResultForMultiDimensionalPlane.getNumberOfCuts());
     }
 
     @GetMapping("/twoDimensionalSet")
