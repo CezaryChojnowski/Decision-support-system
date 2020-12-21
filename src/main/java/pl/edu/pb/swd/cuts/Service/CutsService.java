@@ -297,31 +297,122 @@ public class CutsService {
         return rows;
     }
 
-    public ResultInfoMultiDimensionalPlane cutsMultiDimensionalSet() {
+    public CutResultForMultiDimensionalPlane cutsMultiDimensionalSet() throws IOException {
         LinkedList<LinkedList<String>> listOfStringLists = readWriteService.readDataFromWorkingFile();
         LinkedList<RowMultiDimensional> listOfRows = listsOfListsToRowsMultiDimensional(listOfStringLists);
-        System.out.println(listOfRows);
-        for (int i = 0; i < listOfRows.getFirst().getRow().size(); i++) {
-            LinkedList<RowMultiDimensional> objectsForPotentialClassification = new LinkedList<>();
-            List<RowMultiDimensional> listOfRowsSortedByithElement = new ArrayList<>(listOfRows);
-            int first = 0;
-            int iterator = i;
-            listOfRowsSortedByithElement.sort((l1, l2) -> l1.getRow().get(iterator).compareTo(l2.getRow().get(iterator)));
-            int count = 0;
-            for (int j = 0; j < listOfRows.size(); j++) {
-                String classifier = listOfRowsSortedByithElement.get(first).getClassifier();
-                if (!classifier.equals(listOfRowsSortedByithElement.get(j).getClassifier())) {
-                    break;
+        LinkedList<Cut> cuts = new LinkedList<>();
+        LinkedList<HyperPlaneMoreThan2D> hyperPlanes = new LinkedList<>();
+        int numberOfCuts = 0;
+        int numberOfObjectsRemoved = 0;
+        do {
+            LinkedList<LinkedList<RowMultiDimensional>> listOfObjectsForPotentialClassification = new LinkedList<>();
+            for (int i = 0; i < listOfRows.getFirst().getRow().size(); i++) {
+                LinkedList<RowMultiDimensional> objectsForPotentialClassification = new LinkedList<>();
+
+                List<RowMultiDimensional> listOfRowsSortedByithElement = new ArrayList<>(listOfRows);
+                int first = 0;
+                int iterator = i;
+                listOfRowsSortedByithElement.sort((l1, l2) -> l1.getRow().get(iterator).compareTo(l2.getRow().get(iterator)));
+                for (int j = 0; j < listOfRows.size(); j++) {
+                    String classifier = listOfRowsSortedByithElement.get(first).getClassifier();
+                    if (!classifier.equals(listOfRowsSortedByithElement.get(j).getClassifier())) {
+                        break;
+                    }
+                    objectsForPotentialClassification.add(new RowMultiDimensional(listOfRowsSortedByithElement.get(j).getRow(), listOfRowsSortedByithElement.get(j).getClassifier()));
                 }
-                count++;
-                objectsForPotentialClassification.add(new RowMultiDimensional(listOfRowsSortedByithElement.get(j).getRow(), listOfRowsSortedByithElement.get(j).getClassifier()));
+                boolean result = checkIfThereIsPointWithTheSameValues​ButDifferentClassInTheSet(listOfRows, objectsForPotentialClassification.getLast(), i);
+                if(result){
+                    objectsForPotentialClassification = removeIfExistsRowWithTheSameValue(objectsForPotentialClassification, objectsForPotentialClassification.getLast(), iterator);
+                }
+                        
+                listOfObjectsForPotentialClassification.add(objectsForPotentialClassification);
+
+                LinkedList<RowMultiDimensional> objectsForPotentialClassification2 = new LinkedList<>();
+                Collections.reverse(listOfRowsSortedByithElement);
+                for (int j = 0; j < listOfRows.size(); j++) {
+                    String classifier = listOfRowsSortedByithElement.get(first).getClassifier();
+                    if (!classifier.equals(listOfRowsSortedByithElement.get(j).getClassifier())) {
+                        break;
+                    }
+                    objectsForPotentialClassification2.add(new RowMultiDimensional(listOfRowsSortedByithElement.get(j).getRow(), listOfRowsSortedByithElement.get(j).getClassifier()));
+                }
+                    result = checkIfThereIsPointWithTheSameValues​ButDifferentClassInTheSet(listOfRows, objectsForPotentialClassification2.getLast(), i);
+                    if (result) {
+                        objectsForPotentialClassification2 = removeIfExistsRowWithTheSameValue(objectsForPotentialClassification2, objectsForPotentialClassification2.getLast(), iterator);
+                    }
+
+
+                listOfObjectsForPotentialClassification.add(objectsForPotentialClassification2);
             }
-//            Collections.reverse(listToSort);
-//            System.out.println(listToSort);
+
+            if (checkIfAllSubListAreEmpty(listOfObjectsForPotentialClassification)) {
+                RowMultiDimensional rowMultiDimensional = listOfRows.getFirst();
+                listOfRows.remove(rowMultiDimensional);
+                numberOfObjectsRemoved++;
+                continue;
+            }
+
+            int maxSize=listOfObjectsForPotentialClassification.get(0).size();
+            int index=0;
+            for(int i=0; i<listOfObjectsForPotentialClassification.size(); i++){
+                if(listOfObjectsForPotentialClassification.get(i).size()>=maxSize){
+                    index = i;
+                    maxSize=listOfObjectsForPotentialClassification.get(i).size();
+                }
+            }
+            Cut cut = new Cut();
+            if(index%2==0){
+                cut.setIndex(index/2);
+                cut.setValue(listOfObjectsForPotentialClassification.get(index).getLast().getRow().get(index/2));
+                cut.setDirection("minX");
+            }
+            else{
+                cut.setIndex(index/2);
+                cut.setValue(listOfObjectsForPotentialClassification.get(index).getFirst().getRow().get(index/2));
+                cut.setDirection("maxX");
+            }
+            cuts.add(cut);
+
+            List<List<RowMultiDimensional>> temp = new ArrayList<>(listOfObjectsForPotentialClassification);
+            temp.sort((List<RowMultiDimensional> s1, List<RowMultiDimensional> s2) -> s1.size() - s2.size());
+            listOfRows.removeAll(temp.get(temp.size() - 1));
+            HyperPlaneMoreThan2D hyperPlane = new HyperPlaneMoreThan2D(temp.get(temp.size() - 1));
+            hyperPlane.setCut(cut);
+            hyperPlanes.add(hyperPlane);
+            numberOfCuts++;
+        }while(listOfRows.size()>0);
+        for(HyperPlaneMoreThan2D hyperPlane: hyperPlanes){
+            List<Integer> vector = new ArrayList<>();
+            double value;
+            if(hyperPlane.getCut().getDirection().equals("minX")){
+                int size = hyperPlane.getRows().size();
+                value = hyperPlane.getRows().get(size-1).getRow().get(hyperPlane.getCut().getIndex());
+            }
+            else{
+                value = hyperPlane.getRows().get(0).getRow().get(hyperPlane.getCut().getIndex());
+            }
+            for(Cut cut: cuts){
+                if(cut.getDirection().equals("minX") && value<=cut.getValue()){
+                    vector.add(1);
+                }
+                else if(cut.getDirection().equals("minX") && value>=cut.getValue()){
+                    vector.add(0);
+                }
+                else if(cut.getDirection().equals("maxX") && value<=cut.getValue()){
+                    vector.add(1);
+                }
+                else if(cut.getDirection().equals("maxX") && value>=cut.getValue()){
+                    vector.add(0);
+                }
+            }
+            hyperPlane.setVector(vector);
         }
-
-
-        return new ResultInfoMultiDimensionalPlane(2, 3);
+        CutResultForMultiDimensionalPlane cutResultForMultiDimensionalPlane = new CutResultForMultiDimensionalPlane();
+        cutResultForMultiDimensionalPlane.setHyperPlanes(hyperPlanes);
+        cutResultForMultiDimensionalPlane.setCuts(cuts);
+        cutResultForMultiDimensionalPlane.setNumberOfCuts(numberOfCuts);
+        cutResultForMultiDimensionalPlane.setNumberOfObjectsRemoved(numberOfObjectsRemoved);
+        return cutResultForMultiDimensionalPlane;
     }
 
 }
