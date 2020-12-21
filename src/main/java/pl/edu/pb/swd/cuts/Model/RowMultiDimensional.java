@@ -1,6 +1,7 @@
 package pl.edu.pb.swd.cuts.Model;
 
 import java.util.LinkedList;
+import java.util.Objects;
 
 public class RowMultiDimensional {
     LinkedList<Double> row;
@@ -36,5 +37,19 @@ public class RowMultiDimensional {
                 "row=" + row +
                 ", classifier='" + classifier + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RowMultiDimensional that = (RowMultiDimensional) o;
+        return Objects.equals(row, that.row) &&
+                Objects.equals(classifier, that.classifier);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(row, classifier);
     }
 }
