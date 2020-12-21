@@ -1,9 +1,12 @@
 package pl.edu.pb.swd.cuts.Service;
 
+import com.opencsv.CSVWriter;
 import org.springframework.stereotype.Service;
 import pl.edu.pb.swd.cuts.Model.*;
 import pl.edu.pb.swd.dataOperations.Service.ReadWriteService;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -414,5 +417,130 @@ public class CutsService {
         cutResultForMultiDimensionalPlane.setNumberOfObjectsRemoved(numberOfObjectsRemoved);
         return cutResultForMultiDimensionalPlane;
     }
+
+    public boolean checkIfThereIsPointWithTheSameValues​ButDifferentClassInTheSet(LinkedList<RowMultiDimensional> rows, RowMultiDimensional currentRow, Integer indexInRow) {
+        boolean existsDistinctPoint = false;
+        String classifier = currentRow.getClassifier();
+        for(RowMultiDimensional rowMultiDimensional1: rows){
+            if (rowMultiDimensional1.getRow().get(indexInRow).equals(currentRow.getRow().get(indexInRow)) && !rowMultiDimensional1.getClassifier().equals(classifier)) {
+                existsDistinctPoint = true;
+                break;
+            }
+        }
+        return existsDistinctPoint;
+    }
+
+    public LinkedList<RowMultiDimensional> removeIfExistsRowWithTheSameValue(LinkedList<RowMultiDimensional> rows, RowMultiDimensional currentRow, Integer indexInRow) {
+            rows.removeIf(row1 -> row1.getRow().get(indexInRow).equals(currentRow.getRow().get(indexInRow)));
+        return rows;
+    }
+
+    public boolean checkIfAllSubListAreEmpty(LinkedList<LinkedList<RowMultiDimensional>> rows){
+        boolean allSubListAreEmpty = true;
+        for (LinkedList<RowMultiDimensional> rowMultiDimensionals : rows) {
+            if (!rowMultiDimensionals.isEmpty()) {
+                allSubListAreEmpty = false;
+                break;
+            }
+        }
+        return allSubListAreEmpty;
+    }
+
+    public void overwriteWithBinaryVector2DSet() throws IOException {
+        CutResultForTwoDimensionalPlane cutResultForTwoDimensionalPlane = createCuts();
+        List<HyperPlane> hyperPlanes = cutResultForTwoDimensionalPlane.getHyperPlanes();
+        LinkedList<LinkedList<String>> data = readWriteService.readDataFromWorkingFile();
+        List<Row> rows = listOfListToListOfRowObjects(data);
+        LinkedList<LinkedList<String>> result = new LinkedList<>();
+        LinkedList<VectorWithClass> vectorWithClasses = new LinkedList<>();
+        for(HyperPlane hyperPlane: hyperPlanes){
+            for(int i=0; i<hyperPlane.getRows().size(); i++){
+                vectorWithClasses.add(new VectorWithClass(hyperPlane.getVector(), hyperPlane.getRows().get(0).getClassifier()));
+            }
+        }
+        LinkedList<String> linkedListT = new LinkedList<>();
+        for(int i=0; i<vectorWithClasses.getFirst().getVector().size()-1; i++){
+            linkedListT.add(String.valueOf(i+1));
+        }
+        linkedListT.add("class");
+        result.add(linkedListT);
+
+        for(VectorWithClass vectorWithClass: vectorWithClasses){
+            LinkedList<String> linkedList = new LinkedList<>();
+            for(int i=0; i<vectorWithClass.getVector().size()-1; i++){
+                linkedList.add(String.valueOf(vectorWithClass.getVector().get(i)));
+            }
+            linkedList.add(vectorWithClass.getClassifier());
+            result.add(linkedList);
+        }
+
+        String csvFile = "binaryTwoDimensionalResult.csv";
+        FileWriter outputfile = new FileWriter(csvFile);
+
+        CSVWriter writer = new CSVWriter(outputfile, ';',
+                CSVWriter.NO_QUOTE_CHARACTER,
+                CSVWriter.DEFAULT_ESCAPE_CHARACTER,
+                CSVWriter.DEFAULT_LINE_END);
+        List<String[]> dataTemp = new ArrayList<String[]>();
+        for(List<String> record: result){
+            String temp = record.get(0);
+            for(int i=1; i<record.size(); i++){
+                temp = temp + ";" + record.get(i);
+            }
+            String[] rowdata = temp.split(";");
+            dataTemp.add(rowdata);
+        }
+        writer.writeAll(dataTemp);
+        writer.close();
+    }
+
+    public void overwriteWithBinaryVectorMoreThan2DSet() throws IOException {
+        CutResultForMultiDimensionalPlane cutResultForMultiDimensionalPlane = cutsMultiDimensionalSet();
+        List<HyperPlaneMoreThan2D> hyperPlanes = cutResultForMultiDimensionalPlane.getHyperPlanes();
+        LinkedList<LinkedList<String>> data = readWriteService.readDataFromWorkingFile();
+        List<RowMultiDimensional> rows = listsOfListsToRowsMultiDimensional(data);
+        LinkedList<LinkedList<String>> result = new LinkedList<>();
+        LinkedList<VectorWithClass> vectorWithClasses = new LinkedList<>();
+        for(HyperPlaneMoreThan2D hyperPlane: hyperPlanes){
+            for(int i=0; i<hyperPlane.getRows().size(); i++){
+                vectorWithClasses.add(new VectorWithClass(hyperPlane.getVector(), hyperPlane.getRows().get(0).getClassifier()));
+            }
+        }
+        LinkedList<String> linkedListT = new LinkedList<>();
+        for(int i=0; i<vectorWithClasses.getFirst().getVector().size()-1; i++){
+            linkedListT.add(String.valueOf(i+1));
+        }
+        linkedListT.add("class");
+        result.add(linkedListT);
+
+        for(VectorWithClass vectorWithClass: vectorWithClasses){
+            LinkedList<String> linkedList = new LinkedList<>();
+            for(int i=0; i<vectorWithClass.getVector().size()-1; i++){
+                linkedList.add(String.valueOf(vectorWithClass.getVector().get(i)));
+            }
+            linkedList.add(vectorWithClass.getClassifier());
+            result.add(linkedList);
+        }
+
+        String csvFile = "binaryMultiDimensionalResult.csv";
+        FileWriter outputfile = new FileWriter(csvFile);
+
+        CSVWriter writer = new CSVWriter(outputfile, ';',
+                CSVWriter.NO_QUOTE_CHARACTER,
+                CSVWriter.DEFAULT_ESCAPE_CHARACTER,
+                CSVWriter.DEFAULT_LINE_END);
+        List<String[]> dataTemp = new ArrayList<String[]>();
+        for(List<String> record: result){
+            String temp = record.get(0);
+            for(int i=1; i<record.size(); i++){
+                temp = temp + ";" + record.get(i);
+            }
+            String[] rowdata = temp.split(";");
+            dataTemp.add(rowdata);
+        }
+        writer.writeAll(dataTemp);
+        writer.close();
+    }
+
 
 }
