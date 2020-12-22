@@ -224,8 +224,9 @@ public class CutsService {
             }
 
             if (checkIfAllSubListsOfRowsAreEmpty(rowsList)) {
+
                 int cutAfterRemoved =1;
-                Row rowResult = new Row();
+                Row rowResult = rowsSortByX.getFirst();
                 for(Row row: rowsSortByX){
                     LinkedList<Row> cloned_list = new LinkedList<>(rowsSortByX);
                     LinkedList<Row> cloned_list2 = new LinkedList<>(rowsSortByY);
@@ -514,6 +515,7 @@ public class CutsService {
                 RowMultiDimensional rowMultiDimensional = listOfRows.getFirst();
                 listOfRows.remove(rowMultiDimensional);
                 numberOfObjectsRemoved++;
+                System.out.println(rowMultiDimensional);
                 continue;
             }
 
